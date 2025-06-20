@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PromptifyAI – AI Prompt Writer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* CSS Variables for Theming */
+        :root {
+            --bg-color-dark: #0d1117;
+            --card-color-dark: #161b22;
+            --text-color-dark: #f8fafc;
+            --border-color-dark: #30363d;
+            
+            --bg-color-light: #f8fafc;
+            --card-color-light: #ffffff;
+            --text-color-light: #0d1117;
+            --border-color-light: #e2e8f0;
+
+            --accent-blue: #0ea5e9;
+            --neon-green: #00ff9c;
+            --text-primary: #f8fafc;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--bg-color-dark);
+            color: var(--text-color-dark);
+            transition: background-color 0.4s ease, color 0.4s ease;
+            line-height: 1.6;
+            padding-bottom: 4rem;
+        }
+
+        /* --- Theme Management --- */
+        body.dark-mode {
+            background-color: var(--bg-color-dark);
+            color: var(--text-color-dark);
+            --card-bg: var(--card-color-dark);
+            --text-color: var(--text-color-dark);
+            --border-color: var(--border-color-dark);
+            --shadow-color: rgba(0, 0, 0, 0.4);
+        }
+
+        body.light-mode {
+            background-color: var(--bg-color-light);
+            color: var(--text-color-light);
+            --card-bg: var(--card-color-light);
+            --text-color: var(--text-color-light);
+            --border-color: var(--border-color-light);
+            --shadow-color: rgba(60, 64, 67, 0.15);
+        }
+
+        /* --- Layout & Containers --- */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 0;
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+        }
+
+        /* --- Typography & Glowing Effects --- */
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            text-shadow: 0 0 5px var(--accent-blue), 0 0 10px rgba(14, 165, 233, 0.3);
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+            position: relative;
+        }
+        
+        h1 span {
+            font-size: 1.25rem;
+            color: var(--neon-green);
+            text-shadow: 0 0 5px var(--neon-green), 0 0 10px rgba(0, 255, 156, 0.3);
+            vertical-align: middle;
+        }
+        
+        .hero-section p {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0.5rem auto 0 auto;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        /* --- Interactive Elements & Cards --- */
+        .card {
+            background-color: var(--card-bg, var(--card-color-dark));
+            border: 1px solid var(--border-color, var(--border-color-dark));
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px var(--shadow-color, rgba(0,0,0,0.4)), 0 2px 4px -2px var(--shadow-color, rgba(0,0,0,0.4));
+            transition: all 0.3s ease;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            background-color: var(--bg-color-dark);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color-dark);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.4s ease, color 0.4s ease;
+        }
+        
+        body.light-mode textarea {
+             background-color: #f0f2f5;
+             color: var(--text-color-light);
+             border-color: var(--border-color-light);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.3);
+        }
+
+        .sample-ideas {
+            font-size: 0.85rem;
+            color: var(--text-color);
+            opacity: 0.7;
+            margin-top: 0.75rem;
+        }
+        
+        .sample-ideas span {
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+        }
+        .sample-ideas span:hover {
+            color: var(--accent-blue);
+        }
+
+        .generate-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 0.8rem 1rem;
+            margin-top: 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            background: var(--accent-blue);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 0 10px rgba(14, 165, 233, 0);
+        }
+
+        .generate-button:hover {
+            background: #0ea4e9d0;
+            box-shadow: 0 0 15px var(--accent-blue);
+            transform: translateY(-2px);
+        }
+        
+        .generate-button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        /* --- Theme Toggle Button --- */
+        #theme-toggle {
+            background: transparent;
+            border: 1px solid var(--border-color, var(--border-color-dark));
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        #theme-toggle:hover {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+        .icon-moon { display: none; }
+        body.dark-mode .icon-sun { display: none; }
+        body.dark-mode .icon-moon { display: block; }
+
+        /* --- Output & Loading Spinner --- */
+        .output-container {
+            position: relative;
+            margin-top: 2rem;
+        }
+        #output-box {
+            width: 100%;
+            min-height: 200px;
+            background-color: var(--card-bg, var(--card-color-dark));
+            border: 1px solid var(--border-color, var(--border-color-dark));
+            border-radius: 8px;
+            padding: 1.5rem;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.95rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.5s ease, transform 0.5s ease, background-color 0.4s ease, color 0.4s ease;
+        }
+        #output-box.visible { opacity: 1; transform: translateY(0); }
+        #copy-button { position: absolute; top: 1rem; right: 1rem; background: var(--border-color, var(--border-color-dark)); color: var(--text-color, var(--text-color-dark)); border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .output-container:hover #copy-button { opacity: 1; visibility: visible; }
+        #copy-button:hover { background: var(--accent-blue); color: var(--text-primary); }
+        .spinner { border: 4px solid rgba(255, 255, 255, 0.2); border-left-color: var(--neon-green); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin-right: 10px; display: none; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* --- Use Cases & Info Sections --- */
+        .use-cases-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+        .use-case-card { background-color: var(--card-bg, var(--card-color-dark)); border: 1px solid var(--border-color, var(--border-color-dark)); border-radius: 12px; padding: 1.5rem; text-align: center; transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.4s ease; }
+        .use-case-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px -5px var(--shadow-color, rgba(0,0,0,0.4)), 0 5px 10px -6px var(--shadow-color, rgba(0,0,0,0.4)); }
+        .use-case-card .icon { font-size: 2.5rem; margin-bottom: 0.5rem; color: var(--neon-green); }
+        .use-case-card h3 { font-size: 1.1rem; font-weight: 600; color: var(--text-color, var(--text-color-dark)); margin-bottom: 0.5rem; }
+        .use-case-card p { font-size: 0.9rem; opacity: 0.8; }
+        
+        /* --- FAQ Section Styling --- */
+        .faq-item summary { font-weight: 600; cursor: pointer; padding: 0.5rem 0; color: var(--text-color); transition: color 0.3s; }
+        .faq-item summary:hover { color: var(--accent-blue); }
+        .faq-item p { padding: 0.5rem 0 1rem 1rem; border-left: 2px solid var(--accent-blue); opacity: 0.9; }
+
+        /* --- Footer --- */
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color, var(--border-color-dark));
+        }
+        .footer-links { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin-top: 1.5rem; }
+        .footer-links a { color: var(--text-color); text-decoration: none; opacity: 0.8; transition: opacity 0.3s; }
+        .footer-links a:hover { opacity: 1; color: var(--accent-blue); }
+
+        /* --- Ad Banner Placeholders --- */
+        .ad-banner {
+            margin: 2rem auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 728px;
+            height: 90px;
+            background-color: var(--card-bg, var(--card-color-dark));
+            border: 1px dashed var(--border-color, var(--border-color-dark));
+            overflow: hidden;
+            border-radius: 8px;
+        }
+        .ad-banner-text {
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.5;
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            h1 { font-size: 1.75rem; }
+            h1 span { font-size: 1rem; }
+            .card { padding: 1.5rem; }
+            /* On mobile, wide banners might break layout. This contains them. */
+            .ad-banner { height: 60px; }
+        }
+    </style>
+</head>
+
+<body class="dark-mode">
+
+    <div class="container">
+        <header>
+            <h1>Promptify<span>AI</span></h1>
+            <button id="theme-toggle" title="Toggle Theme">
+                <span class="icon-sun">🌞</span>
+                <span class="icon-moon">🌙</span>
+            </button>
+        </header>
+
+        <!-- techpk - Ad Banner Placeholder 1 (Header) -->
+        <div class="ad-banner">
+             <span class="ad-banner-text"><script type="text/javascript">
+	atOptions = {
+		'key' : 'e7f2941e13f2f67a96ec92a5db1a8a8a',
+		'format' : 'iframe',
+		'height' : 90,
+		'width' : 728,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/e7f2941e13f2f67a96ec92a5db1a8a8a/invoke.js"></script></span>
+        </div>
+
+        <main>
+            <section class="hero-section">
+                <h2>Advanced AI Prompt Writer</h2>
+                <p>Transform your simple ideas into powerful, detailed, and effective prompts for any AI model.</p>
+            </section>
+
+            <!-- Prompt Generator -->
+            <div class="card">
+                <label for="user-input"><strong>1. Describe what you want</strong></label>
+                <textarea id="user-input" placeholder="e.g., A blog post about the future of remote work"></textarea>
+                <div class="sample-ideas">
+                    Try: <span data-idea="A YouTube script for a tech review">Tech Review Script</span> | 
+                    <span data-idea="A LinkedIn post about AI trends">LinkedIn Post</span> | 
+                    <span data-idea="A freelancing gig proposal for web design">Gig Proposal</span>
+                </div>
+                
+                <button id="generate-btn" class="generate-button">
+                    <div id="spinner" class="spinner"></div>
+                    <span>Generate Prompt</span>
+                </button>
+
+                <div class="output-container">
+                    <pre id="output-box">Your generated prompt will appear here...</pre>
+                    <button id="copy-button" title="Copy to Clipboard">Copy</button>
+                </div>
+            </div>
+
+            <!-- techpk - Ad Banner Placeholder 2 (Mid-content) -->
+            <div class="ad-banner">
+                <span class="ad-banner-text"><script type="text/javascript">
+	atOptions = {
+		'key' : 'e7f2941e13f2f67a96ec92a5db1a8a8a',
+		'format' : 'iframe',
+		'height' : 90,
+		'width' : 728,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/e7f2941e13f2f67a96ec92a5db1a8a8a/invoke.js"></script></span>
+            </div>
+
+            <!-- Sample Use Cases -->
+            <section class="use-cases-section">
+                <h2>Sample Use Cases</h2>
+                <div class="use-cases-grid">
+                    <div class="use-case-card">
+                        <div class="icon">🎬</div>
+                        <h3>YouTube Scripts</h3>
+                        <p>Generate detailed scripts with intros, talking points, and calls to action.</p>
+                    </div>
+                    <div class="use-case-card">
+                        <div class="icon">💼</div>
+                        <h3>Freelancing Gigs</h3>
+                        <p>Create compelling proposals that outline project scope, deliverables, and value.</p>
+                    </div>
+                    <div class="use-case-card">
+                        <div class="icon">🌐</div>
+                        <h3>Social Media Posts</h3>
+                        <p>Craft engaging posts for LinkedIn, Twitter, or blogs with the right tone and hashtags.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- New Information Sections -->
+            <section id="faq" class="card">
+                <h2>Frequently Asked Questions</h2>
+                <div class="faq-item">
+                    <details>
+                        <summary>What is PromptifyAI?</summary>
+                        <p>PromptifyAI is a free tool that enhances your simple ideas into advanced, structured prompts for use with AI models like Gemini, ChatGPT, and others. It helps you get better, more detailed results from AI.</p>
+                    </details>
+                </div>
+                <div class="faq-item">
+                    <details>
+                        <summary>Is my data saved?</summary>
+                        <p>No. PromptifyAI does not store your input or the generated prompts on any server. Your request is sent directly to the Google Gemini API for processing and the result is returned to you. The theme preference (light/dark mode) is the only data saved, and it is stored locally in your browser.</p>
+                    </details>
+                </div>
+                <div class="faq-item">
+                    <details>
+                        <summary>Why did my prompt generation fail?</summary>
+                        <p>Failures can happen for a few reasons: 1) The provided API key is invalid or has expired. 2) Google's API service is temporarily down or busy. 3) Your input may have violated the API's safety policies. 4) A network connection issue.</p>
+                    </details>
+                </div>
+            </section>
+
+            <section id="privacy-policy" class="card">
+                <h2>Privacy Policy</h2>
+                <p><strong>Last Updated: [Current Date]</strong></p><br>
+                <p>Your privacy is important to us. This policy explains what data PromptifyAI processes and why.</p>
+                <ul>
+                    <li><strong>User Input:</strong> The text you enter is sent to the Google Gemini API to generate a prompt. We do not log, store, or view this data. It is processed in-memory and forgotten after the request.</li>
+                    <li><strong>API Interaction:</strong> All API requests are governed by <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>. We are simply providing an interface to their service.</li>
+                    <li><strong>Local Storage:</strong> We use your browser's local storage to save your theme preference (light or dark mode). This is not transmitted to any server.</li>
+                    <li><strong>Advertising:</strong> This site displays ads from third-party networks. These networks may use cookies to show personalized ads. We do not share your prompt data with advertisers.</li>
+                </ul>
+            </section>
+
+            <section id="contact-us" class="card">
+                <h2>Contact Us</h2>
+                <p>Have questions, feedback, or a feature request? We'd love to hear from you!</p>
+                <p>Please reach out to us via email: <a href="mailto:support@promptifyai.example.com" style="color: var(--accent-blue);">support@promptifyai.example.com</a></p>
+            </section>
+
+        </main>
+
+        <footer>
+            <!-- techpk - Ad Banner Placeholder 3 (Footer) -->
+            <div class="ad-banner">
+                <span class="ad-banner-text"><script type="text/javascript">
+	atOptions = {
+		'key' : 'e7f2941e13f2f67a96ec92a5db1a8a8a',
+		'format' : 'iframe',
+		'height' : 90,
+		'width' : 728,
+		'params' : {}
+	};
+</script>
+<script type="text/javascript" src="//www.highperformanceformat.com/e7f2941e13f2f67a96ec92a5db1a8a8a/invoke.js"></script></span>
+            </div>
+            <div class="footer-links">
+                <a href="#faq">FAQ</a>
+                <a href="#privacy-policy">Privacy Policy</a>
+                <a href="#contact-us">Contact Us</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Element Selection ---
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const generateBtn = document.getElementById('generate-btn');
+            const userInput = document.getElementById('user-input');
+            const outputBox = document.getElementById('output-box');
+            const spinner = document.getElementById('spinner');
+            const copyBtn = document.getElementById('copy-button');
+            const sampleIdeaSpans = document.querySelectorAll('.sample-ideas span');
+
+            // --- Theme Toggle ---
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme === 'light') {
+                document.body.classList.remove('dark-mode');
+                document.body.classList.add('light-mode');
+            } else {
+                 document.body.classList.add('dark-mode');
+            }
+
+            themeToggleBtn.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                document.body.classList.toggle('light-mode');
+                
+                let theme = 'dark';
+                if (document.body.classList.contains('light-mode')) {
+                    theme = 'light';
+                }
+                localStorage.setItem('theme', theme);
+            });
+
+            // --- Sample Ideas Handler ---
+            sampleIdeaSpans.forEach(span => {
+                span.addEventListener('click', () => {
+                    userInput.value = span.getAttribute('data-idea');
+                    userInput.focus();
+                });
+            });
+
+            // --- Copy to Clipboard ---
+            copyBtn.addEventListener('click', () => {
+                if(navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(outputBox.textContent)
+                        .then(() => {
+                            copyBtn.textContent = 'Copied!';
+                            setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
+                        })
+                        .catch(err => { alert('Failed to copy text.'); });
+                } else {
+                    const textArea = document.createElement("textarea");
+                    textArea.value = outputBox.textContent;
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        copyBtn.textContent = 'Copied!';
+                        setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
+                    } catch (err) {
+                        alert('Failed to copy text.');
+                    }
+                    document.body.removeChild(textArea);
+                }
+            });
+
+            // --- Core Prompt Generation Logic ---
+            generateBtn.addEventListener('click', () => {
+                const userQuery = userInput.value.trim();
+                if (!userQuery) {
+                    alert('Please describe what you want in the text area.');
+                    return;
+                }
+                
+                spinner.style.display = 'block';
+                generateBtn.disabled = true;
+                generateBtn.querySelector('span').textContent = 'Generating...';
+                outputBox.classList.remove('visible');
+                
+                generatePrompt(userQuery);
+            });
+
+            // --- GEMINI API INTEGRATION ---
+            async function generatePrompt(userQuery) {
+                // The provided API Key is now attached here.
+                const API_KEY = 'AIzaSyCLGBtLqfmoACPNjRGNaXytV24lcJM8EuI';
+                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+                
+                const fullPrompt = `You are PromptifyAI, a highly advanced AI assistant specializing in prompt engineering for large language models. Your purpose is to convert simple user ideas into detailed, structured, and effective prompts. A user has provided the following idea: "${userQuery}". Your task is to generate an "Advanced Prompt" based on this idea. The advanced prompt should be comprehensive and guide an AI to create high-quality content. It must include clear sections for: **Role and Goal**, **Context**, **Audience**, **Structure / Format**, **Tone of Voice**, and **Constraints**. Generate only the "Advanced Prompt" itself, ready to be copied and used in another AI tool. Do not add any introductory text before the prompt.`;
+
+                const requestBody = { "contents": [{ "parts": [{ "text": fullPrompt }] }] };
+
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(requestBody),
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(`API Error: ${response.status} - ${errorData.error.message}`);
+                    }
+
+                    const data = await response.json();
+                    const generatedText = data.candidates[0].content.parts[0].text;
+                    displayOutput(generatedText);
+
+                } catch (error) {
+                    console.error("Error fetching from API:", error);
+                    const errorMessage = `// ERROR: Failed to fetch from the API.\n// ${error.message}\n\n// Please check if the API key is valid, has been enabled in your Google Cloud project, and that you are not exceeding quota limits.`;
+                    displayOutput(errorMessage);
+                } finally {
+                    spinner.style.display = 'none';
+                    generateBtn.disabled = false;
+                    generateBtn.querySelector('span').textContent = 'Generate Prompt';
+                }
+            }
+
+            function displayOutput(text) {
+                outputBox.textContent = text;
+                outputBox.classList.add('visible');
+            }
+        });
+    </script>
+<script type='text/javascript' src='//pl26958761.profitableratecpm.com/80/87/c8/8087c84dc6ed82ab37f6ce9d43b5b746.js'></script>
+<script async="async" data-cfasync="false" src="//pl26958767.profitableratecpm.com/7ebcef384fcdf7a6e587e7425955f676/invoke.js"></script>
+  <div id="container-7ebcef384fcdf7a6e587e7425955f676"></div>
+</body>
+</html>
